@@ -1,0 +1,344 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    #canvas {
+        border: 1px solid black;
+    }
+
+    #imgRover {
+        position: absolute;
+        height: 50px;
+        width: 50px;
+    }
+</style>
+
+<script>
+
+    //function load() {
+    //    document.getElementById("imgRover").style.left = "0px";
+    //    document.getElementById("imgRover").style.top = "500px";
+    //}
+    //window.onload = load;
+
+
+
+    function draw() {
+
+        var canvas = document.getElementById('canvas');
+        if (canvas.getContext) {
+            var context = canvas.getContext('2d');
+            //context.rotate( Math.PI / 2);
+            for (var x = 0; x < 500; x += 100) {
+                context.moveTo(x, 0);
+                context.lineTo(x, 500);
+            }
+
+            for (var y = 0; y < 500; y += 100) {
+                context.moveTo(0, y);
+                context.lineTo(500, y);
+
+            }
+
+            context.strokeStyle = 'grey';
+            context.stroke();
+
+        }
+    }
+
+    function showCoords(event) {
+        var x = event.clientX - 10;
+        var y = event.clientY - 10;
+        var coords = "X coordinates: " + x + ", Y coordinates: " + y;
+        document.getElementById('showCoords').innerHTML = coords;
+
+        //document.getElementById("btn").style.left = "100px";//x.toString() + "px";
+        //document.getElementById("btn").style.top = "200px";
+
+
+
+    }
+
+
+
+    function moveX() {
+        var x = document.getElementById("input1").value;
+        var y = document.getElementById("input2").value;
+
+        if (x.split('').length != 3) {
+            alert("Start position is not defined.");
+        }
+        else {
+
+            //LMLMLMLMM
+            //12N
+
+
+            var intX1 = parseInt(x.split('')[0]);
+            var intX2 = parseInt(x.split('')[1]);
+
+            var startPositionX = intX1 * 100;
+            var startPositionY = 500 - (intX2 * 100);
+
+            var direction = x.split('')[2];
+
+            var arr = y.split('');
+            for (var i = 0; i < arr.length; i++) {
+
+
+                if (arr[i] === "m" || arr[i] === "M") {
+                    if (direction === "e" || direction === "E") {
+                        startPositionX = startPositionX + 100;
+                        intX1++;
+
+
+
+                        $("#imgRover").animate({
+                            left: "+=100px",
+                        }, 2000);
+
+
+                        //document.getElementById("imgRover").style.left = startPositionX.toString() + "px";
+
+
+
+                        console.log('hareket et.');
+                    }
+                    else if (direction === "w" || direction === "W") {
+                        startPositionX = startPositionX - 100;
+                        intX1--;
+
+
+                        $("#imgRover").animate({
+                            left: "-=100px",
+                        }, 2000);
+
+
+                        //document.getElementById("imgRover").style.left = startPositionX.toString() + "px";
+                    }
+                    else if (direction === "s" || direction === "S") {
+                        startPositionY = startPositionY + 100;
+                        intX2--;
+
+
+                        $("#imgRover").animate({
+                            top: "+=100px",
+                        }, 2000);
+
+
+
+                        //document.getElementById("imgRover").style.top = startPositionY.toString() + "px";
+                    }
+                    else if (direction === "n" || direction === "N") {
+                        startPositionY = startPositionY - 100;
+                        intX2++;
+
+
+                        $("#imgRover").animate({
+                            top: "-=100px",
+                        }, 2000);
+
+
+                        //document.getElementById("imgRover").style.top = startPositionY.toString() + "px";
+                    }
+                }
+                else if (arr[i] === "l" || arr[i] === "L") {
+                    if (direction === "e" || direction === "E") {
+                        direction = "n";
+                        document.getElementById("imgRover").src = "../images/marsrover_north.png";
+                        console.log('kuzeye dön.');
+                    }
+                    else if (direction === "n" || direction === "N") {
+                        direction = "w";
+                        document.getElementById("imgRover").src = "../images/marsrover_west.png";
+                        console.log('batıya dön.');
+                    }
+                    else if (direction === "w" || direction === "W") {
+                        direction = "s";
+                        document.getElementById("imgRover").src = "../images/marsrover_south.png";
+                        console.log('güneye dön.');
+                    }
+                    else if (direction === "s" || direction === "S") {
+                        direction = "e";
+                        document.getElementById("imgRover").src = "../images/marsrover_east.png";
+                        console.log('doğuya dön.');
+                    }
+                }
+                else if (arr[i] === "r" || arr[i] === "R") {
+                    if (direction === "e" || direction === "E") {
+                        direction = "s";
+                        document.getElementById("imgRover").src = "../images/marsrover_south.png";
+                    }
+                    else if (direction === "n" || direction === "N") {
+                        direction = "e";
+                        document.getElementById("imgRover").src = "../images/marsrover_east.png";
+                    }
+                    else if (direction === "w" || direction === "W") {
+                        direction = "n";
+                        document.getElementById("imgRover").src = "../images/marsrover_north.png";
+                    }
+                    else if (direction === "s" || direction === "S") {
+                        direction = "w";
+                        document.getElementById("imgRover").src = "../images/marsrover_west.png";
+                    }
+                }
+
+
+                //last position is logging
+                if (i == arr.length - 1)
+                {
+                    console.log(intX1.toString() + intX2.toString() + direction);
+
+                    $.ajax({
+            type: "GET",
+            url: '@Url.Action("LogLastPosition", "Space")',
+            contentType: "application/json; charset=utf-8",
+                        data: { message: intX1.toString() + intX2.toString() + direction },
+            dataType: "json",
+            success: function() {  }
+
+            });
+
+                }
+
+
+
+            }
+        }
+
+
+
+    }
+
+    function input1Change() {
+        var x = document.getElementById("input1").value;
+
+        var arr = x.split('');
+
+        if (arr.length === 0) {
+            document.getElementById("imgRover").style.left = "0px";
+            document.getElementById("imgRover").style.top = "500px";
+        }
+
+        if (arr.length === 1)
+            document.getElementById("imgRover").style.top = "500px";
+
+
+        for (var i = 0; i < arr.length; i++) {
+            if (i === 0)
+                document.getElementById("imgRover").style.left = (arr[0] * 100).toString() + "px";
+            else if (i === 1)
+                document.getElementById("imgRover").style.top = (500 - (arr[1] * 100)).toString() + "px";
+            else if (i === 2) {
+                if (arr[2] === "E" || arr[2] === "e")
+                    document.getElementById("imgRover").src = "../images/marsrover_east.png";
+                else if (arr[2] === "W" || arr[2] === "w")
+                    document.getElementById("imgRover").src = "../images/marsrover_west.png";
+                else if (arr[2] === "S" || arr[2] === "s")
+                    document.getElementById("imgRover").src = "../images/marsrover_south.png";
+                else if (arr[2] === "n" || arr[2] === "N")
+                    document.getElementById("imgRover").src = "../images/marsrover_north.png";
+            }
+        }
+
+
+    }
+</script>
+
+
+
+
+<div id="content-wrapper">
+
+    <div class="container-fluid">
+
+        <!-- Breadcrumbs-->
+        <!-- Icon Cards-->
+        <div class="row">
+
+
+
+            <div class="col-xl-3 col-sm-6 mb-3">
+                <div class="card text-white bg-danger o-hidden h-100">
+                    <div class="card-body">
+                        <div class="card-body-icon">
+                            <i class="fas fa-fw fa-life-ring"></i>
+                        </div>
+                        <div class="mr-5">
+                            <label>Start Position</label>
+                            <input type="text" id="input1" onkeyup="input1Change()" />
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+
+            <div class="col-xl-3 col-sm-6 mb-3">
+                <div class="card text-white bg-danger o-hidden h-100">
+                    <div class="card-body">
+                        <div class="card-body-icon">
+                            <i class="fas fa-fw fa-life-ring"></i>
+                        </div>
+                        <div class="mr-5">
+                            <label>Discovery Order</label>
+                            <input type="text" id="input2" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="col-xl-3 col-sm-6 mb-3">
+                <div class="card text-white bg-danger o-hidden h-100">
+                    <div class="card-body">
+                        <div class="card-body-icon">
+                            <i class="fas fa-fw fa-life-ring"></i>
+                        </div>
+                        <div class="mr-5">
+
+                            <input type="button" value="Discover Mars" class="btn btn-success" onclick="moveX()" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Area Chart Example-->
+        <div class="card mb-3">
+
+            <div class="card-body">
+                <div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+
+
+                <canvas id='canvas' width='500' height='500' onclick="showCoords(event)"></canvas>
+
+                <p id='showCoords'></p>
+
+                <img src="~/images/marsrover_east.png" asp-append-version="true" id="imgRover">
+
+
+                @*<canvas id="myAreaChart" width="1277" height="383" style="display: block; width: 1277px; height: 383px;" class="chartjs-render-monitor"></canvas>*@
+            </div>
+
+        </div>
+
+        <!-- DataTables Example -->
+
+
+    </div>
+    <!-- /.container-fluid -->
+    <!-- Sticky Footer -->
+
+
+</div>
+
+
